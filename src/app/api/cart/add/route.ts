@@ -44,17 +44,19 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await prisma.number.updateMany({
-      where: { rifaId: rifa.id, number: { in: numbers } },
-      data: {
-        status: "RESERVED",
-        buyerName,
-        buyerPhone,
-        buyerEmail,
-        reservedAt: new Date(),
-        transactionId: transaction.id,
-      },
-    });
+    for (const n of numbers) {
+      await prisma.number.updateMany({
+        where: { rifaId: rifa.id, number: n, status: "AVAILABLE" },
+        data: {
+          status: "RESERVED",
+          buyerName,
+          buyerPhone,
+          buyerEmail,
+          reservedAt: new Date(),
+          transactionId: transaction.id,
+        },
+      });
+    }
 
     return NextResponse.json({
       ok: true,

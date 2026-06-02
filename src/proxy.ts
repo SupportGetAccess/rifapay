@@ -6,7 +6,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const method = request.method;
 
-  const authBypassPaths = ["/api/auth/login", "/api/auth/registro", "/api/auth/verificar", "/api/auth/recuperar", "/api/auth/restablecer", "/api/webhooks/mercadopago"];
+  const authBypassPaths = ["/api/auth/login", "/api/auth/registro", "/api/auth/verificar", "/api/auth/recuperar", "/api/auth/restablecer", "/api/webhooks/mercadopago", "/api/payments/create"];
   const publicGetPaths = ["/api/rifas"];
   const bypassAuth = authBypassPaths.some((p) => pathname.startsWith(p));
   const isPublicGet = publicGetPaths.some((p) => pathname.startsWith(p)) && method === "GET";
