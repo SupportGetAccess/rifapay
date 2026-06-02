@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
     const rifa = await prisma.rifa.create({
       data: {
         slug,
+        status: "ACTIVE",
         title: body.title,
         description: body.description,
         imageUrl: body.imageUrl,
