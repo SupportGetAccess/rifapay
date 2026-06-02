@@ -41,18 +41,20 @@ export async function POST(request: NextRequest) {
         buyerPhone,
         buyerEmail,
         rifaId: rifa.id,
-        numbers: {
-          create: numbers.map((n: number) => ({
-            number: n,
-            status: "RESERVED",
-            buyerName,
-            buyerPhone,
-            buyerEmail,
-            reservedAt: new Date(),
-            rifaId: rifa.id,
-          })),
-        },
       },
+    });
+
+    await prisma.number.createMany({
+      data: numbers.map((n: number) => ({
+        number: n,
+        status: "RESERVED",
+        buyerName,
+        buyerPhone,
+        buyerEmail,
+        reservedAt: new Date(),
+        rifaId: rifa.id,
+        transactionId: transaction.id,
+      })),
     });
 
     return NextResponse.json({
