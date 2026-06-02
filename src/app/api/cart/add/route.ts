@@ -44,17 +44,16 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await prisma.number.createMany({
-      data: numbers.map((n: number) => ({
-        number: n,
+    await prisma.number.updateMany({
+      where: { rifaId: rifa.id, number: { in: numbers } },
+      data: {
         status: "RESERVED",
         buyerName,
         buyerPhone,
         buyerEmail,
         reservedAt: new Date(),
-        rifaId: rifa.id,
         transactionId: transaction.id,
-      })),
+      },
     });
 
     return NextResponse.json({
