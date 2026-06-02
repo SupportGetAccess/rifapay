@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
             buyerPhone,
             buyerEmail,
             reservedAt: new Date(),
+            rifaId: rifa.id,
           })),
         },
       },
