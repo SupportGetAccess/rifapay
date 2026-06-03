@@ -1,0 +1,76 @@
+# RifaPay - Notas de Sesión (2 Jun 2026)
+
+## Stack
+- Next.js 16.2.7 (Turbopack), Node v24.15.0, React 19.2.4
+- Prisma v7.8.0 + @prisma/adapter-pg + pg Pool (sin SSL para pooler)
+- PostgreSQL en Supabase (Transaction Pooler: aws-1-sa-east-1.pooler.supabase.com:6543)
+- QA: Render (develop), PRD: Cloudflare Pages (main)
+
+## Base de Datos
+- Supabase project ref: oikokixdgdsprirgwcv
+- Pooler user: postgres.aoikokixdgdsprirgwcv
+- DATABASE_URL: postgresql://postgres.aoikokixdgdsprirgwcv:xJO8I3zVNVFugqFq@aws-1-sa-east-1.pooler.supabase.com:6543/postgres
+- Tablas creadas vía script SQL directo (prisma db push no funciona sobre pooler)
+- prisma generate ejecutado localmente
+
+## Auth
+- JWT_SECRET: ifapay-jwt-secret-cambiame-en-produccion (idem en Render)
+- Flujo: register -> verify (código 6 chars) -> login -> /api/auth/me
+- Proxy inyecta x-user-id y x-user-role en requests autenticados
+
+## Proxy (middleware)
+- Paths públicos: /api/auth/*, /api/webhooks/mercadopago, /api/payments/create, /api/cart/add
+- GET /api/rifas público, POST /api/rifas requiere auth
+- TODO lo demás requiere auth
+
+## Mercado Pago
+- App nueva creada en MP Developers para RifaPay (separada de GetAccess)
+- MP_ACCESS_TOKEN (APP_USR-...) configurado en Render
+- MP_WEBHOOK_URL configurado en Render: https://rifapay-qa.onrender.com/api/webhooks/mercadopago
+- Webhook configurado en MP Dashboard (evento: Pagos, modo productivo)
+
+## QA Deploy
+- URL: https://rifapay-qa.onrender.com
+- Rama: develop
+- Render auto-deploy desde develop
+- Env vars en Render: DATABASE_URL, JWT_SECRET, MP_ACCESS_TOKEN, MP_WEBHOOK_URL, NEXT_PUBLIC_URL
+
+## API Endpoints
+- GET /api/rifas - lista pública
+- POST /api/rifas - crear (auth, crea ACTIVE + números 1..N)
+- GET /api/rifas/[slug] - detalle con números
+- POST /api/cart/add - público, crea transaction + reserva números (updateMany)
+- POST /api/payments/create - público, crea preferencia MP
+- POST /api/webhooks/mercadopago - público, recibe notificaciones MP
+- GET /api/auth/me - auth, datos del usuario
+- POST /api/auth/login - público
+- POST /api/auth/registro - público
+- POST /api/auth/verificar - público
+- GET /api/dashboard - auth, stats del usuario
+- GET /api/payments/[id] - auth, estado del pago
+
+## Frontend
+- / - Home con listado de rifas
+- /r/[slug] - Detalle de rifa con grilla de números
+- /cart?rifa=<slug> - Carrito con selector de números y MP checkout
+- /cart/success - Confirmación
+- /cart/failure - Error
+- /dashboard - Panel del creador
+
+## Prisma Schema (7 models: User, Rifa, Number, Transaction, Affiliate, AffiliateEarning)
+- Enums: Plan, RifaStatus, NumStatus, TransStatus, EarnStatus
+- Slug único por rifa (title + timestamp)
+- Números se crean al crear la rifa (1..totalNumbers, status=AVAILABLE)
+- Al comprar: se hace UPDATE de AVAILABLE a RESERVED + transactionId
+
+## Bugs Corregidos
+1. Rifa se creaba como DRAFT -> cambiado a ACTIVE
+2. Cart/add intentaba crear números nuevos -> cambiado a updateMany
+3. Cart/add y payments/create requerían auth -> agregados a bypass del proxy
+4. Transaction create sin rifaId en nested create -> separado en dos calls
+
+## Pendiente para PRD (Cloudflare Pages)
+- Misma app de MP, cambiar webhook URL a la de PRD
+- Actualizar NEXT_PUBLIC_URL en PRD
+- Cambiar JWT_SECRET
+- (Opcional) Migrar a Neon DB serverless

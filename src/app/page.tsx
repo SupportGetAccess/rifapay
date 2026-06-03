@@ -35,10 +35,10 @@ export default async function Home() {
             RifaPay
           </Link>
           <nav className="flex items-center gap-4">
-            <Link href="/api/auth/login" className="text-sm font-medium text-gray-600 hover:text-primary">
+            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-primary">
               Ingresar
             </Link>
-            <Link href="/api/auth/registro" className="btn-primary text-sm">
+            <Link href="/register" className="btn-primary text-sm">
               Crear cuenta
             </Link>
           </nav>
