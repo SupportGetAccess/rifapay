@@ -129,8 +129,72 @@
 3. Cart/add y payments/create requer�an auth -> agregados a bypass del proxy
 4. Transaction create sin rifaId en nested create -> separado en dos calls
 
-## Pendiente para PRD (Cloudflare Pages)
-- Misma app de MP, cambiar webhook URL a la de PRD
-- Actualizar NEXT_PUBLIC_URL en PRD
-- Cambiar JWT_SECRET
-- (Opcional) Migrar a Neon DB serverless
+---
+
+# RifaPay - Notas de Sesión (4 Jun 2026) - Migración a cuentas nuevas
+
+## Resumen de cuentas nuevas
+
+| Cuenta | GitHub | Supabase | Render |
+|--------|--------|----------|--------|
+| **Gmail nuevo** | `soporterifapay` | RifaPay QA + PRD | RifaPay QA + PRD |
+| **Tu cuenta actual** | SupportGetAccess | GetAccess | GetAccess |
+
+## URLs finales
+
+| Servicio | URL |
+|----------|-----|
+| QA | https://rifapay-qa.onrender.com |
+| PRD | https://rifapay-prd.onrender.com |
+
+## Configuración de Render
+
+### Build Command (QA y PRD)
+```
+npm install && npx prisma generate && npm run build
+```
+
+### Environment Variables - QA
+
+| Variable | Valor |
+|----------|-------|
+| `DATABASE_URL` | `postgresql://postgres.pmolilfazhlplhaokamx:%40Supabase1982@aws-1-sa-east-1.pooler.supabase.com:6543/postgres` |
+| `JWT_SECRET` | `rifapay-jwt-secret-cambiame-en-produccion` |
+| `MP_ACCESS_TOKEN` | `APP_USR-2752992721428383-060217-0ab5d245e49d0b845478b4c4c87447be-1921694` |
+| `MP_WEBHOOK_URL` | `https://rifapay-qa.onrender.com/api/webhooks/mercadopago` |
+| `NEXT_PUBLIC_URL` | `https://rifapay-qa.onrender.com` |
+
+### Environment Variables - PRD
+
+| Variable | Valor |
+|----------|-------|
+| `DATABASE_URL` | `postgresql://postgres.pajryxchkqqxowjudrfe:%40Supabase1982@aws-1-sa-east-1.pooler.supabase.com:6543/postgres` |
+| `JWT_SECRET` | `f8a2e9c1b4d7e6f3a4jd74km1az5f4c3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8` |
+| `MP_ACCESS_TOKEN` | `APP_USR-2752992721428383-060217-0ab5d245e49d0b845478b4c4c87447be-1921694` |
+| `MP_WEBHOOK_URL` | `https://rifapay-prd.onrender.com/api/webhooks/mercadopago` |
+| `NEXT_PUBLIC_URL` | `https://rifapay-prd.onrender.com` |
+
+## Supabase PRD Schema
+- Se usaron tipos ENUM de PostgreSQL en vez de TEXT
+- Enums creados: Plan, RifaStatus, NumStatus, TransStatus, EarnStatus
+- Schema ejecutado desde SQL Editor en dos queries (enums + tablas)
+
+## Fixes aplicados al código
+
+### TypeScript - implicit any
+| Archivo | Fix |
+|---------|-----|
+| `src/app/api/cart/add/route.ts:26` | Tipo explícito en callback `.map()` |
+| `src/app/api/dashboard/route.ts:28-34` | Tipo `RifaStats` para resultado de Prisma |
+| `src/app/api/rifas/route.ts:34` | Tipo `RifaRow` para resultado de Prisma |
+| `src/app/api/rifas/[slug]/route.ts:38` | Tipo explícito en callback `.filter()` |
+
+### Git
+- Remote actualizado a `github.com/soporterifapay/rifapay.git`
+- Rama `master` mergeada con `develop` (fast-forward)
+- Workflow `.github/workflows/ping-render-prd.yml` creado en master (ping cada 14 min)
+
+## Estado actual
+- QA y PRD deployados y respondiendo correctamente
+- QA con datos de pruebas previas
+- PRD con base de datos vacía
