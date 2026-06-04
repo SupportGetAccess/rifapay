@@ -35,7 +35,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       imageUrl: rifa.imageUrl,
       pricePerNumber: Number(rifa.pricePerNumber),
       totalNumbers: rifa.totalNumbers,
-      soldNumbers: rifa.numbers.filter((n) => n.status === "SOLD").length,
+      soldNumbers: rifa.numbers.filter((n: { status: string }) => n.status === "SOLD").length,
       drawDate: rifa.drawDate,
       status: rifa.status,
       category: rifa.category,
