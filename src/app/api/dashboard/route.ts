@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+type RifaStats = {
+  status: string;
+  numbers: { id: string }[];
+  transactions: { amount: unknown; status: string }[];
+};
+
 export async function GET(request: NextRequest) {
   try {
     const userId = request.headers.get("x-user-id");
@@ -8,7 +14,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ ok: false, error: "No autorizado" }, { status: 401 });
     }
 
-    const rifas = await prisma.rifa.findMany({
+    const rifas: RifaStats[] = await prisma.rifa.findMany({
       where: { userId },
       include: {
         _count: { select: { numbers: true } },

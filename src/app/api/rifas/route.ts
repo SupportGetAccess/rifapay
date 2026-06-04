@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+type RifaRow = {
+  id: string; slug: string; title: string; imageUrl: string | null;
+  pricePerNumber: unknown; totalNumbers: number;
+  numbers: { id: string }[]; drawDate: unknown; status: string; category: string | null;
+  _count: { numbers: number };
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -31,7 +38,7 @@ export async function GET(request: NextRequest) {
       take: 50,
     });
 
-    const data = rifas.map((r) => ({
+    const data = (rifas as RifaRow[]).map((r) => ({
       id: r.id,
       slug: r.slug,
       title: r.title,
