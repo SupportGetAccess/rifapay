@@ -1,4 +1,64 @@
-# RifaPay - Notas de Sesión (2 Jun 2026)
+# RifaPay - Notas de Sesiï¿½n (3 Jun 2026)
+
+## Cambios implementados
+
+### 1. Pï¿½ginas de Login, Register y Verify
+- `src/app/login/page.tsx` - Formulario login con email + pass, redirige a `/verify` si email no verificado
+- `src/app/register/page.tsx` - Registro en 2 pasos (datos del usuario -> cï¿½digo de verificaciï¿½n)
+- `src/app/verify/page.tsx` - Ingreso manual de email + cï¿½digo para verificar
+- Links corregidos en homepage y detalle de rifa: apuntan a `/login` y `/register` en vez de `/api/auth/*`
+
+### 2. Pï¿½gina /cart/pending
+- `src/app/(public)/cart/pending/page.tsx` - Pï¿½gina para cuando MP devuelve pago pendiente
+- Referenciada en `back_urls` de mercadopago.ts, antes daba 404
+
+### 3. Preparaciï¿½n para PRD (pospuesto)
+- `master` actualizado con todos los fixes de `develop` (fast-forward merge, push a origin)
+- `dotenv` agregado a `devDependencies` en package.json
+- Supabase PRD no se creï¿½: lï¿½mite de 2 proyectos free en la organizaciï¿½n
+- Render PRD y GitHub Actions ping workflow pendientes
+
+### 4. Build verificado
+- `npm run build` exitoso sin errores
+
+### 5. Commit y push
+- Rama `develop`: commit `97d213c` - "feat: login, register, verify pages + cart/pending + fix homepage links"
+- Auto-deploy en Render QA desde develop
+
+---
+
+## Pendientes de QA
+
+| # | Pendiente | Prioridad |
+|---|-----------|-----------|
+| 1 | Password recovery (recuperar/restablecer contraseï¿½a) | Alta |
+| 2 | Rate limiting en endpoints pï¿½blicos | Alta |
+| 3 | Dashboard sub-secciones: Mis rifas, Ventas, Afiliados | Media |
+| 4 | Pï¿½ginas success/failure con detalle de la compra | Media |
+| 5 | API de Afiliados | Baja |
+
+---
+
+## Pendiente de PRD (para cuando decidas)
+
+| # | Pendiente | Estado |
+|---|-----------|--------|
+| 1 | Crear proyecto Supabase `rifapay-prd` | Pausado (lï¿½mite free) |
+| 2 | `prisma db push` contra conexiï¿½n directa (5432) | Pausado |
+| 3 | Crear Web Service en Render + env vars | Pausado |
+| 4 | Workflow ping-render.yml en GitHub Actions | Pausado |
+
+---
+
+## Stack actual
+- Next.js 16.2.7 (Turbopack), Node v24.15.0, React 19.2.4
+- Prisma v7.8.0 + @prisma/adapter-pg + pg Pool
+- PostgreSQL en Supabase (Transaction Pooler: aws-1-sa-east-1.pooler.supabase.com:6543)
+- QA: Render (develop), URL: https://rifapay-qa.onrender.com
+
+---
+
+# RifaPay - Notas de Sesiï¿½n (2 Jun 2026)
 
 ## Stack
 - Next.js 16.2.7 (Turbopack), Node v24.15.0, React 19.2.4
@@ -10,18 +70,18 @@
 - Supabase project ref: oikokixdgdsprirgwcv
 - Pooler user: postgres.aoikokixdgdsprirgwcv
 - DATABASE_URL: postgresql://postgres.aoikokixdgdsprirgwcv:xJO8I3zVNVFugqFq@aws-1-sa-east-1.pooler.supabase.com:6543/postgres
-- Tablas creadas vía script SQL directo (prisma db push no funciona sobre pooler)
+- Tablas creadas vï¿½a script SQL directo (prisma db push no funciona sobre pooler)
 - prisma generate ejecutado localmente
 
 ## Auth
 - JWT_SECRET: ifapay-jwt-secret-cambiame-en-produccion (idem en Render)
-- Flujo: register -> verify (código 6 chars) -> login -> /api/auth/me
+- Flujo: register -> verify (cï¿½digo 6 chars) -> login -> /api/auth/me
 - Proxy inyecta x-user-id y x-user-role en requests autenticados
 
 ## Proxy (middleware)
-- Paths públicos: /api/auth/*, /api/webhooks/mercadopago, /api/payments/create, /api/cart/add
-- GET /api/rifas público, POST /api/rifas requiere auth
-- TODO lo demás requiere auth
+- Paths pï¿½blicos: /api/auth/*, /api/webhooks/mercadopago, /api/payments/create, /api/cart/add
+- GET /api/rifas pï¿½blico, POST /api/rifas requiere auth
+- TODO lo demï¿½s requiere auth
 
 ## Mercado Pago
 - App nueva creada en MP Developers para RifaPay (separada de GetAccess)
@@ -36,37 +96,37 @@
 - Env vars en Render: DATABASE_URL, JWT_SECRET, MP_ACCESS_TOKEN, MP_WEBHOOK_URL, NEXT_PUBLIC_URL
 
 ## API Endpoints
-- GET /api/rifas - lista pública
-- POST /api/rifas - crear (auth, crea ACTIVE + números 1..N)
-- GET /api/rifas/[slug] - detalle con números
-- POST /api/cart/add - público, crea transaction + reserva números (updateMany)
-- POST /api/payments/create - público, crea preferencia MP
-- POST /api/webhooks/mercadopago - público, recibe notificaciones MP
+- GET /api/rifas - lista pï¿½blica
+- POST /api/rifas - crear (auth, crea ACTIVE + nï¿½meros 1..N)
+- GET /api/rifas/[slug] - detalle con nï¿½meros
+- POST /api/cart/add - pï¿½blico, crea transaction + reserva nï¿½meros (updateMany)
+- POST /api/payments/create - pï¿½blico, crea preferencia MP
+- POST /api/webhooks/mercadopago - pï¿½blico, recibe notificaciones MP
 - GET /api/auth/me - auth, datos del usuario
-- POST /api/auth/login - público
-- POST /api/auth/registro - público
-- POST /api/auth/verificar - público
+- POST /api/auth/login - pï¿½blico
+- POST /api/auth/registro - pï¿½blico
+- POST /api/auth/verificar - pï¿½blico
 - GET /api/dashboard - auth, stats del usuario
 - GET /api/payments/[id] - auth, estado del pago
 
 ## Frontend
 - / - Home con listado de rifas
-- /r/[slug] - Detalle de rifa con grilla de números
-- /cart?rifa=<slug> - Carrito con selector de números y MP checkout
-- /cart/success - Confirmación
+- /r/[slug] - Detalle de rifa con grilla de nï¿½meros
+- /cart?rifa=<slug> - Carrito con selector de nï¿½meros y MP checkout
+- /cart/success - Confirmaciï¿½n
 - /cart/failure - Error
 - /dashboard - Panel del creador
 
 ## Prisma Schema (7 models: User, Rifa, Number, Transaction, Affiliate, AffiliateEarning)
 - Enums: Plan, RifaStatus, NumStatus, TransStatus, EarnStatus
-- Slug único por rifa (title + timestamp)
-- Números se crean al crear la rifa (1..totalNumbers, status=AVAILABLE)
+- Slug ï¿½nico por rifa (title + timestamp)
+- Nï¿½meros se crean al crear la rifa (1..totalNumbers, status=AVAILABLE)
 - Al comprar: se hace UPDATE de AVAILABLE a RESERVED + transactionId
 
 ## Bugs Corregidos
 1. Rifa se creaba como DRAFT -> cambiado a ACTIVE
-2. Cart/add intentaba crear números nuevos -> cambiado a updateMany
-3. Cart/add y payments/create requerían auth -> agregados a bypass del proxy
+2. Cart/add intentaba crear nï¿½meros nuevos -> cambiado a updateMany
+3. Cart/add y payments/create requerï¿½an auth -> agregados a bypass del proxy
 4. Transaction create sin rifaId en nested create -> separado en dos calls
 
 ## Pendiente para PRD (Cloudflare Pages)

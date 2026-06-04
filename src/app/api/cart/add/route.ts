@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     if (existing.length > 0) {
       return NextResponse.json({
         ok: false,
-        error: `Números no disponibles: ${existing.map((n) => n.number).join(", ")}`,
+        error: `Números no disponibles: ${existing.map((n: { number: number }) => n.number).join(", ")}`,
       }, { status: 409 });
     }
 
